@@ -18,8 +18,9 @@ export const colors = {
   warningMuted: 'rgba(240,180,41,0.15)',
   divider: '#2c2c2e',
   overlay: 'rgba(0,0,0,0.7)',
-  tabBarBg: '#111111',
-  tabBarBorder: '#2c2c2e',
+  tabBarBg: '#0a0f2e',
+  tabBarBorder: '#1a2040',
+  tabBarActive: '#0052FF',
 } as const;
 
 export const typography = {

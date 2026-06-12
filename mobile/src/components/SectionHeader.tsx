@@ -29,10 +29,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   title: {
-    ...typography.sectionHeader,
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    letterSpacing: -0.3,
   },
   action: {
-    ...typography.body,
+    fontSize: 14,
     color: colors.primary,
+    fontWeight: '500',
   },
 });

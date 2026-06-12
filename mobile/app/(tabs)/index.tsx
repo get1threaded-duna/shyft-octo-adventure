@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, RefreshControl, SafeAreaView,
+  View, Text, ScrollView, StyleSheet, RefreshControl, SafeAreaView, Pressable,
 } from 'react-native';
 import { router } from 'expo-router';
 import { BalanceHeader } from '../../src/components/BalanceHeader';
@@ -9,7 +9,7 @@ import { AssetRow } from '../../src/components/AssetRow';
 import { SectionHeader } from '../../src/components/SectionHeader';
 import { ConcentrationBar } from '../../src/components/ConcentrationBar';
 import { mockPositions, mockPortfolio, Position } from '../../src/data/mock';
-import { colors, spacing } from '../../src/theme/tokens';
+import { colors, spacing, typography, radii } from '../../src/theme/tokens';
 
 export default function PortfolioScreen() {
   const [refreshing, setRefreshing] = React.useState(false);
@@ -34,6 +34,22 @@ export default function PortfolioScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      {/* Top nav: account avatar + name left, icons right */}
+      <View style={styles.topNav}>
+        <Pressable style={styles.accountRow}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>J</Text>
+          </View>
+          <Text style={styles.accountName}>My Portfolio</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+        <View style={styles.navIcons}>
+          <Pressable style={styles.navIcon}><Text style={styles.navIconText}>⌕</Text></Pressable>
+          <Pressable style={styles.navIcon}><Text style={styles.navIconText}>⌗</Text></Pressable>
+          <Pressable style={styles.navIcon}><Text style={styles.navIconText}>🔔</Text></Pressable>
+        </View>
+      </View>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -54,6 +70,8 @@ export default function PortfolioScreen() {
           dayChangePct={mockPortfolio.dayChangePct}
         />
 
+        <View style={styles.dividerLine} />
+
         <View style={styles.section}>
           <ActionButtons
             actions={[
@@ -72,12 +90,12 @@ export default function PortfolioScreen() {
           </View>
         )}
 
-        <View style={[styles.section, styles.concentrationSection]}>
+        <View style={styles.sectionBlock}>
           <SectionHeader title="Allocation" />
           <ConcentrationBar segments={concentrationSegments} />
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionBlock}>
           <SectionHeader
             title="Positions"
             action={{ label: 'Manage', onPress: () => {} }}
@@ -90,7 +108,7 @@ export default function PortfolioScreen() {
                   portfolioPct={(position.value / totalValue) * 100}
                   onPress={handlePositionPress}
                 />
-                {i < mockPositions.length - 1 && <View style={styles.divider} />}
+                {i < mockPositions.length - 1 && <View style={styles.rowDivider} />}
               </React.Fragment>
             ))}
           </View>
@@ -102,17 +120,48 @@ export default function PortfolioScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
+  topNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.screen,
+    paddingVertical: spacing.sm,
+  },
+  accountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  accountName: { ...typography.body, fontWeight: '600' },
+  chevron: { color: colors.textSecondary, fontSize: 18, marginLeft: -4 },
+  navIcons: { flexDirection: 'row', gap: spacing.lg },
+  navIcon: { padding: 2 },
+  navIconText: { fontSize: 20, color: colors.textPrimary },
   scroll: { flex: 1 },
   content: { paddingBottom: 40 },
+  dividerLine: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.divider,
+    marginTop: spacing.sm,
+  },
   section: { marginTop: spacing.xl },
-  concentrationSection: { gap: spacing.sm },
+  sectionBlock: { marginTop: spacing.xl, gap: spacing.sm },
   listCard: {
     backgroundColor: colors.surface1,
-    borderRadius: 12,
+    borderRadius: radii.card,
     marginHorizontal: spacing.screen,
     overflow: 'hidden',
   },
-  divider: {
+  rowDivider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.divider,
     marginLeft: spacing.screen + 44 + spacing.md,
@@ -120,17 +169,10 @@ const styles = StyleSheet.create({
   alertCard: {
     backgroundColor: colors.warningMuted,
     marginHorizontal: spacing.screen,
-    borderRadius: 12,
+    borderRadius: radii.card,
     padding: spacing.card,
     gap: 4,
   },
-  alertTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.warning,
-  },
-  alertBody: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
+  alertTitle: { fontSize: 14, fontWeight: '600', color: colors.warning },
+  alertBody: { fontSize: 13, color: colors.textSecondary },
 });

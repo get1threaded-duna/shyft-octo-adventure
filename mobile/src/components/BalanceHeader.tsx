@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing } from '../theme/tokens';
 
 interface Props {
@@ -17,7 +16,7 @@ export function BalanceHeader({ totalValue, totalGainLoss, totalGainLossPct, day
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Portfolio Value</Text>
+      {/* Raw balance number — no label above, matches Coinbase Wallet pattern */}
       <Text style={styles.balance}>${totalValue.toFixed(2)}</Text>
       <View style={styles.changeRow}>
         <View style={[styles.changePill, isPositive ? styles.pillPositive : styles.pillNegative]}>
@@ -39,15 +38,12 @@ export function BalanceHeader({ totalValue, totalGainLoss, totalGainLossPct, day
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.screen,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.lg,
-  },
-  label: {
-    ...typography.caption,
-    marginBottom: spacing.xs,
   },
   balance: {
     ...typography.heroBalance,
+    fontSize: 52,
     marginBottom: spacing.sm,
   },
   changeRow: {
@@ -61,20 +57,12 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 100,
   },
-  pillPositive: {
-    backgroundColor: colors.positiveMuted,
-  },
-  pillNegative: {
-    backgroundColor: colors.negativeMuted,
-  },
+  pillPositive: { backgroundColor: colors.positiveMuted },
+  pillNegative: { backgroundColor: colors.negativeMuted },
   changePillText: {
     ...typography.priceChange,
     fontSize: 13,
   },
-  changeAbs: {
-    ...typography.caption,
-  },
-  dayChange: {
-    ...typography.caption,
-  },
+  changeAbs: { ...typography.caption },
+  dayChange: { ...typography.caption },
 });
