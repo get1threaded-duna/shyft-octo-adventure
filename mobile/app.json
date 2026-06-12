@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Juggernaut",
+    "slug": "juggernaut-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "juggernaut",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.juggernaut.portfolio"
+    },
+    "android": {
+      "adaptiveIcon": { "backgroundColor": "#000000" },
+      "package": "com.juggernaut.portfolio"
+    },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}
