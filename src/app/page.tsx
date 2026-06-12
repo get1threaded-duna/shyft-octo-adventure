@@ -116,71 +116,69 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-surface pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur border-b border-surface-border px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold tracking-tight">JUGGERNAUT</h1>
-          <p className="text-xs text-gray-600">Portfolio Command Center</p>
-        </div>
+      <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl px-5 pt-12 pb-3 flex items-center justify-between">
+        <h1 className="text-[17px] font-semibold tracking-tight text-white">Juggernaut</h1>
         <button
           onClick={() => refreshPrices(rawPositions)}
           disabled={refreshing}
-          className="text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          className="flex items-center gap-1.5 text-accent-blue text-[15px] disabled:opacity-40 transition-opacity"
         >
           {refreshing ? (
-            <span className="w-3 h-3 border border-accent-blue/40 border-t-accent-blue rounded-full animate-spin inline-block" />
+            <span className="w-3.5 h-3.5 border-2 border-accent-blue/30 border-t-accent-blue rounded-full animate-spin inline-block" />
           ) : (
-            '↻'
+            <span className="text-[13px] text-gray-500">{lastRefreshed ?? ''}</span>
           )}
-          {lastRefreshed ?? 'Refresh'}
+          {!refreshing && <span>↻</span>}
         </button>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-6 flex flex-col gap-6">
         {/* Portfolio Summary */}
         {portfolio && positions.length > 0 && (
-          <section className="bg-surface-card border border-surface-border rounded-2xl p-5 flex flex-col gap-4">
-            <div className="flex items-end justify-between">
-              <div>
-                <div className="text-xs text-gray-500 mb-1 uppercase tracking-widest">
-                  Total Value
-                </div>
-                <div className="text-4xl font-bold tabular-nums">
-                  ${portfolio.totalValue.toFixed(2)}
-                </div>
+          <section className="flex flex-col gap-5 px-1">
+            {/* Big number hero */}
+            <div>
+              <div className="text-[15px] text-gray-500 mb-1">Portfolio Value</div>
+              <div className="text-[52px] font-bold tracking-tight leading-none tabular-nums text-white">
+                ${portfolio.totalValue.toFixed(2)}
               </div>
-              <div className="text-right">
-                <div
-                  className={`text-2xl font-bold font-mono ${
+              <div className={`mt-2 flex items-center gap-2`}>
+                <span
+                  className={`text-[17px] font-semibold ${
                     isGain ? 'text-accent-green' : 'text-accent-red'
+                  }`}
+                >
+                  {isGain ? '+' : ''}${portfolio.totalGainLoss.toFixed(2)}
+                </span>
+                <span
+                  className={`text-[15px] px-2 py-0.5 rounded-md font-medium ${
+                    isGain
+                      ? 'bg-accent-green/15 text-accent-green'
+                      : 'bg-accent-red/15 text-accent-red'
                   }`}
                 >
                   {isGain ? '+' : ''}
                   {portfolio.totalGainLossPct.toFixed(1)}%
-                </div>
-                <div
-                  className={`text-sm font-mono ${
-                    isGain ? 'text-accent-green/70' : 'text-accent-red/70'
-                  }`}
-                >
-                  {isGain ? '+' : ''}${portfolio.totalGainLoss.toFixed(2)}
-                </div>
+                </span>
+                <span className="text-[13px] text-gray-600">all time</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            {/* Stats row */}
+            <div className="grid grid-cols-2 gap-3">
               <Stat label="Invested" value={`$${portfolio.totalCost.toFixed(2)}`} />
               <Stat label="Positions" value={String(positions.length)} />
             </div>
 
             {showConcentrationAlert && (
-              <div className="bg-accent-yellow/10 border border-accent-yellow/30 rounded-xl px-4 py-3 flex items-start gap-3">
-                <span className="text-accent-yellow text-lg mt-0.5">⚠</span>
+              <div className="bg-accent-yellow/10 rounded-2xl px-4 py-3.5 flex items-start gap-3">
+                <span className="text-accent-yellow text-base mt-0.5">⚠</span>
                 <div>
-                  <div className="text-accent-yellow text-sm font-semibold">
+                  <div className="text-accent-yellow text-[15px] font-semibold">
                     {topConc.pct.toFixed(0)}% in {topConc.ticker}
                   </div>
-                  <div className="text-gray-400 text-xs mt-0.5">
-                    High concentration. Tap position for context.
+                  <div className="text-gray-400 text-[13px] mt-0.5">
+                    High concentration — tap the position for context.
                   </div>
                 </div>
               </div>
@@ -190,8 +188,8 @@ export default function Home() {
 
         {/* Allocation Donut */}
         {positions.length > 0 && (
-          <section className="bg-surface-card border border-surface-border rounded-2xl p-5">
-            <div className="text-xs text-gray-500 uppercase tracking-widest mb-4">Allocation</div>
+          <section className="bg-surface-card rounded-2xl p-5">
+            <div className="text-[13px] text-gray-500 font-medium mb-4">Allocation</div>
             <AllocationDonut positions={positions} size={180} />
           </section>
         )}
@@ -199,7 +197,7 @@ export default function Home() {
         {/* Positions */}
         {positions.length > 0 && (
           <section>
-            <div className="text-xs text-gray-500 uppercase tracking-widest mb-3">Positions</div>
+            <div className="text-[13px] text-gray-500 font-medium mb-3 px-1">Positions</div>
             <div className="flex flex-col gap-3">
               {positions.map((pos) => (
                 <PositionCard
@@ -238,7 +236,7 @@ export default function Home() {
       {positions.length > 0 && (
         <button
           onClick={() => setShowAdd(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-accent-blue rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-accent-blue/90 active:scale-95 transition-all z-30"
+          className="fixed bottom-8 right-5 w-14 h-14 bg-accent-blue rounded-full shadow-2xl shadow-accent-blue/30 flex items-center justify-center text-[28px] font-light hover:scale-105 active:scale-95 transition-transform z-30"
           aria-label="Add position"
         >
           +
@@ -263,9 +261,9 @@ export default function Home() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-surface-elevated rounded-xl px-3 py-2.5">
-      <div className="text-xs text-gray-500 mb-0.5">{label}</div>
-      <div className="font-mono font-semibold">{value}</div>
+    <div className="bg-surface-card rounded-2xl px-4 py-3">
+      <div className="text-[12px] text-gray-500 mb-1">{label}</div>
+      <div className="text-[17px] font-semibold tabular-nums">{value}</div>
     </div>
   )
 }

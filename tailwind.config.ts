@@ -10,21 +10,25 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: '#0a0a0f',
-          card: '#111118',
-          elevated: '#1a1a24',
-          border: '#2a2a3a',
+          DEFAULT: '#000000',
+          card: '#1c1c1e',
+          elevated: '#2c2c2e',
+          border: '#38383a',
         },
         accent: {
-          green: '#00d97e',
-          red: '#ff4757',
-          yellow: '#ffd32a',
-          blue: '#4a9eff',
-          purple: '#a855f7',
+          green: '#34c759',
+          red: '#ff453a',
+          yellow: '#ffd60a',
+          blue: '#0a84ff',
+          purple: '#bf5af2',
         },
       },
       fontFamily: {
-        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        mono: ['ui-monospace', 'SF Mono', 'monospace'],
+      },
+      fontSize: {
+        'display': ['56px', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.03em' }],
+        'display-sm': ['40px', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }],
       },
     },
   },

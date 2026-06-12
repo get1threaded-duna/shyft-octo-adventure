@@ -14,62 +14,69 @@ export default function PositionCard({ position: p, portfolioPct, onAnalyze, onD
   const isHighConcentration = portfolioPct >= 25
 
   return (
-    <div className="bg-surface-card border border-surface-border rounded-xl p-4 flex flex-col gap-3">
+    <div className="bg-surface-card rounded-2xl px-4 py-4 flex flex-col gap-4">
+      {/* Top row: ticker + value */}
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold font-mono tracking-wide">{p.ticker}</span>
+            <span className="text-[19px] font-bold tracking-tight">{p.ticker}</span>
             {isHighConcentration && (
-              <span className="text-xs bg-accent-yellow/15 text-accent-yellow border border-accent-yellow/30 rounded px-1.5 py-0.5">
-                {portfolioPct.toFixed(0)}% conc.
+              <span className="text-[11px] bg-accent-yellow/15 text-accent-yellow rounded-md px-1.5 py-0.5 font-medium">
+                {portfolioPct.toFixed(0)}%
               </span>
             )}
           </div>
           {p.sector && (
-            <span className="text-xs text-gray-500">{p.sector}</span>
+            <span className="text-[13px] text-gray-500">{p.sector}</span>
           )}
         </div>
-        <div className="text-right">
-          <div className="text-lg font-bold">${p.value.toFixed(2)}</div>
-          <div
-            className={`text-sm font-mono ${isGain ? 'text-accent-green' : 'text-accent-red'}`}
+        <div className="text-right flex flex-col gap-1">
+          <div className="text-[19px] font-bold tabular-nums">${p.value.toFixed(2)}</div>
+          <span
+            className={`text-[13px] font-semibold px-2 py-0.5 rounded-md self-end ${
+              isGain
+                ? 'bg-accent-green/15 text-accent-green'
+                : 'bg-accent-red/15 text-accent-red'
+            }`}
           >
             {isGain ? '+' : ''}
             {p.gainLossPct.toFixed(2)}%
-          </div>
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-xs">
-        <div>
-          <div className="text-gray-500 mb-0.5">Shares</div>
-          <div className="font-mono">{p.shares.toFixed(5)}</div>
-        </div>
-        <div>
-          <div className="text-gray-500 mb-0.5">Avg Cost</div>
-          <div className="font-mono">${p.avgCost.toFixed(2)}</div>
-        </div>
-        <div>
-          <div className="text-gray-500 mb-0.5">Price</div>
-          <div className="font-mono">${p.currentPrice.toFixed(2)}</div>
-        </div>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-2">
+        <MiniStat label="Shares" value={p.shares.toFixed(5)} />
+        <MiniStat label="Avg Cost" value={`$${p.avgCost.toFixed(2)}`} />
+        <MiniStat label="Price" value={`$${p.currentPrice.toFixed(2)}`} />
       </div>
 
-      <div className="flex gap-2 pt-1">
+      {/* Actions */}
+      <div className="flex gap-2">
         <button
           onClick={() => onAnalyze(p)}
-          className="flex-1 text-xs bg-surface-elevated border border-surface-border rounded-lg py-2 px-3 text-gray-300 hover:text-white hover:border-accent-blue/50 transition-colors"
+          className="flex-1 text-[14px] font-medium bg-surface-elevated rounded-xl py-2.5 text-accent-blue hover:opacity-80 transition-opacity"
         >
           Analysis Brief
         </button>
         <button
           onClick={() => onDelete(p.id)}
-          className="text-xs bg-surface-elevated border border-surface-border rounded-lg py-2 px-3 text-gray-500 hover:text-accent-red hover:border-accent-red/30 transition-colors"
+          className="text-[14px] bg-surface-elevated rounded-xl py-2.5 px-4 text-gray-600 hover:text-accent-red transition-colors"
           aria-label="Remove position"
         >
           ✕
         </button>
       </div>
+    </div>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-surface-elevated rounded-xl px-3 py-2">
+      <div className="text-[11px] text-gray-600 mb-0.5">{label}</div>
+      <div className="text-[13px] font-mono font-medium text-gray-200">{value}</div>
     </div>
   )
 }

@@ -51,19 +51,21 @@ export default function AnalysisBriefModal({ position, portfolioPct, onClose }: 
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
       <div
-        className="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto"
+        className="bg-surface-card rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[88vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-surface-card border-b border-surface-border px-5 py-4 flex items-center justify-between">
-          <div>
-            <span className="text-xl font-bold font-mono">{position.ticker}</span>
+        <div className="sticky top-0 bg-surface-card/95 backdrop-blur-xl px-5 py-4 flex items-center justify-between border-b border-surface-border/50">
+          <div className="flex items-center gap-3">
+            <span className="text-[22px] font-bold tracking-tight">{position.ticker}</span>
             <span
-              className={`ml-3 text-sm font-mono ${isGain ? 'text-accent-green' : 'text-accent-red'}`}
+              className={`text-[13px] font-semibold px-2 py-0.5 rounded-md ${
+                isGain ? 'bg-accent-green/15 text-accent-green' : 'bg-accent-red/15 text-accent-red'
+              }`}
             >
               {isGain ? '+' : ''}
               {position.gainLossPct.toFixed(2)}%
@@ -71,7 +73,7 @@ export default function AnalysisBriefModal({ position, portfolioPct, onClose }: 
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white transition-colors text-lg"
+            className="w-7 h-7 rounded-full bg-surface-elevated flex items-center justify-center text-gray-400 hover:text-white transition-colors text-sm"
           >
             ✕
           </button>
@@ -93,7 +95,7 @@ export default function AnalysisBriefModal({ position, portfolioPct, onClose }: 
 
           {brief && (
             <>
-              <p className="text-white leading-relaxed">{brief.headline}</p>
+              <p className="text-[16px] text-white leading-relaxed font-medium">{brief.headline}</p>
 
               <Section title="Valuation" content={brief.valuation} />
               <Section title="Volatility" content={brief.volatility} />
@@ -106,7 +108,7 @@ export default function AnalysisBriefModal({ position, portfolioPct, onClose }: 
                 />
               )}
 
-              <p className="text-xs text-gray-600 border-t border-surface-border pt-4">
+              <p className="text-[12px] text-gray-600 border-t border-surface-border/50 pt-4">
                 {brief.footer}
               </p>
             </>
@@ -128,20 +130,18 @@ function Section({
 }) {
   return (
     <div
-      className={`rounded-xl p-4 ${
-        highlight
-          ? 'bg-accent-yellow/10 border border-accent-yellow/25'
-          : 'bg-surface-elevated border border-surface-border'
+      className={`rounded-2xl p-4 ${
+        highlight ? 'bg-accent-yellow/10' : 'bg-surface-elevated'
       }`}
     >
       <div
-        className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
+        className={`text-[11px] font-semibold uppercase tracking-widest mb-2 ${
           highlight ? 'text-accent-yellow' : 'text-gray-500'
         }`}
       >
         {title}
       </div>
-      <p className="text-sm text-gray-200 leading-relaxed">{content}</p>
+      <p className="text-[14px] text-gray-200 leading-relaxed">{content}</p>
     </div>
   )
 }

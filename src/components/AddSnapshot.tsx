@@ -62,16 +62,19 @@ export default function AddSnapshot({ onConfirm, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
       <div
-        className="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-surface-card rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-surface-card border-b border-surface-border px-5 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Add Positions</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+        <div className="sticky top-0 bg-surface-card/95 backdrop-blur-xl px-5 py-4 flex items-center justify-between border-b border-surface-border/50">
+          <h2 className="text-[17px] font-semibold">Add Positions</h2>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-surface-elevated flex items-center justify-center text-gray-400 hover:text-white transition-colors text-sm"
+          >
             ✕
           </button>
         </div>
