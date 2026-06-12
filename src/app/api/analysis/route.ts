@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-const client = new Anthropic()
-
 const SYSTEM = `You are an educational financial analyst. Your role is to provide clear, factual context about publicly traded securities — never personalized buy/sell recommendations.
 
 Write in plain, direct language. Be specific with numbers and context. Avoid jargon without explanation.
@@ -11,7 +9,13 @@ Always end every response with exactly this footer line:
 "Educational analysis, not investment advice. You make the decisions."`
 
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not set in .env.local' }, { status: 500 })
+  }
+
   try {
+    const client = new Anthropic({ apiKey })
     const body = await req.json()
     const { ticker, shares, avgCost, currentPrice, gainLossPct, portfolioPct } = body
 
@@ -37,7 +41,7 @@ Return a JSON object with exactly these fields:
 Return ONLY valid JSON, no markdown.`
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-8',
+      model: 'claude-opus-4-5',
       max_tokens: 600,
       system: SYSTEM,
       messages: [{ role: 'user', content: prompt }],
@@ -53,6 +57,7 @@ Return ONLY valid JSON, no markdown.`
     return NextResponse.json({ brief })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[/api/analysis]', message)
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

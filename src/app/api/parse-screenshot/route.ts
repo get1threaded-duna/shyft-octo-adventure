@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-const client = new Anthropic()
-
 const SYSTEM = `You are a financial data extractor. Given a screenshot from a brokerage or investing app (e.g. Cash App Investing), extract all visible stock/ETF positions.
 
 Return ONLY a valid JSON array. Each element must have:
@@ -22,6 +20,12 @@ Rules:
 - Return ONLY the JSON array, no explanation.`
 
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not set in .env.local' }, { status: 500 })
+  }
+  const client = new Anthropic({ apiKey })
+
   try {
     const formData = await req.formData()
     const file = formData.get('image') as File | null
@@ -38,7 +42,7 @@ export async function POST(req: NextRequest) {
       | 'image/webp'
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-8',
+      model: 'claude-opus-4-5',
       max_tokens: 1024,
       system: SYSTEM,
       messages: [
