@@ -327,7 +327,7 @@ _start_cloudflared() {
   local url="" i=0
   while (( i++ < 30 )); do
     sleep 1
-    url=$(grep -oP 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$logfile" 2>/dev/null | head -1 || true)
+    url=$(grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$logfile" 2>/dev/null | head -1 || true)
     [[ -n "$url" ]] && break
   done
 
