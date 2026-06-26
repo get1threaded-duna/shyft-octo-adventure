@@ -49,7 +49,7 @@ cmd_init() {
   if [[ -f "$ENV_FILE" ]]; then
     warn "Env file already exists at $ENV_FILE"
     read -r -p "  Overwrite? [y/N] " reply
-    [[ "${reply,,}" == "y" ]] || { info "Keeping existing file."; return 0; }
+    [[ "$(echo "$reply" | tr '[:upper:]' '[:lower:]')" == "y" ]] || { info "Keeping existing file."; return 0; }
   fi
 
   mkdir -p "$HERMES_HOME"
