@@ -116,8 +116,8 @@ HERMES_HEALTH_TIMEOUT=30
 HERMES_HEALTH_PATH=/api/prices?tickers=SPY
 EOF
 
-  # Patch in the real script dir
-  sed -i "s|__SCRIPT_DIR__|${SCRIPT_DIR}|g" "$ENV_FILE"
+  # Patch in the real script dir (perl works on both macOS and Linux)
+  perl -pi -e "s|__SCRIPT_DIR__|${SCRIPT_DIR}|g" "$ENV_FILE"
 
   chmod 600 "$ENV_FILE"
   ok "Wrote $ENV_FILE  $(_dim '(mode 600)')"
