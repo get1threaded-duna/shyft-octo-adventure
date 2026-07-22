@@ -1,5 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { Agent, AgentResult } from './types'
+import type { Agent, AgentAuth, AgentResult } from './types'
+import { makeClient } from './types'
 
 const MODEL = 'claude-sonnet-5'
 
@@ -40,8 +40,8 @@ export const drafter: Agent = {
     },
   ],
 
-  async run(params, apiKey): Promise<AgentResult> {
-    const client = new Anthropic({ apiKey })
+  async run(params, auth: AgentAuth): Promise<AgentResult> {
+    const client = makeClient(auth)
     const type = params.type
     const intent = params.intent
     const context = params.context || ''
@@ -49,7 +49,7 @@ export const drafter: Agent = {
 
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 1200,
+      max_tokens: 4000,
       system:
         'You are a senior communications specialist. Write clear, purposeful business communications that get results. Every word should earn its place. Never be verbose or use filler phrases.',
       messages: [
@@ -76,7 +76,8 @@ Return ONLY valid JSON. Use \\n for line breaks within the draft text.`,
       ],
     })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const textBlock = message.content.find((b) => b.type === 'text')
+    const text = textBlock && textBlock.type === 'text' ? textBlock.text : '{}'
     const match = text.match(/\{[\s\S]*\}/)
     const output = match ? JSON.parse(match[0]) : { error: 'Parse failed', raw: text }
 

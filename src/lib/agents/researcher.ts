@@ -1,5 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { Agent, AgentResult } from './types'
+import type { Agent, AgentAuth, AgentResult } from './types'
+import { makeClient } from './types'
 
 const MODEL = 'claude-sonnet-5'
 
@@ -31,12 +31,13 @@ export const researcher: Agent = {
     },
   ],
 
-  async run(params, apiKey): Promise<AgentResult> {
-    const client = new Anthropic({ apiKey })
+  async run(params, auth: AgentAuth): Promise<AgentResult> {
+    const client = makeClient(auth)
     const topic = params.topic
     const depth = params.depth || 'summary'
     const lens = params.lens || 'business'
-    const maxTokens = depth === 'detailed' ? 1200 : 700
+    // claude-sonnet-5 uses extended thinking; budget generously for thinking + output
+    const maxTokens = depth === 'detailed' ? 8000 : 4000
 
     const message = await client.messages.create({
       model: MODEL,
@@ -66,7 +67,8 @@ Return ONLY valid JSON, no markdown.`,
       ],
     })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const textBlock = message.content.find((b) => b.type === 'text')
+    const text = textBlock && textBlock.type === 'text' ? textBlock.text : '{}'
     const match = text.match(/\{[\s\S]*\}/)
     const output = match ? JSON.parse(match[0]) : { error: 'Parse failed', raw: text }
 

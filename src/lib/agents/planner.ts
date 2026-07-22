@@ -1,5 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { Agent, AgentResult } from './types'
+import type { Agent, AgentAuth, AgentResult } from './types'
+import { makeClient } from './types'
 
 const MODEL = 'claude-sonnet-5'
 
@@ -31,15 +31,15 @@ export const planner: Agent = {
     },
   ],
 
-  async run(params, apiKey): Promise<AgentResult> {
-    const client = new Anthropic({ apiKey })
+  async run(params, auth: AgentAuth): Promise<AgentResult> {
+    const client = makeClient(auth)
     const goal = params.goal
     const context = params.context || ''
     const horizon = params.horizon || '90d'
 
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 1400,
+      max_tokens: 8000,
       system:
         'You are a seasoned product and operations strategist. Build clear, realistic plans. Be specific about what needs to happen and in what order. Flag real risks and dependencies.',
       messages: [
@@ -76,7 +76,8 @@ Return ONLY valid JSON, no markdown.`,
       ],
     })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const textBlock = message.content.find((b) => b.type === 'text')
+    const text = textBlock && textBlock.type === 'text' ? textBlock.text : '{}'
     const match = text.match(/\{[\s\S]*\}/)
     const output = match ? JSON.parse(match[0]) : { error: 'Parse failed', raw: text }
 

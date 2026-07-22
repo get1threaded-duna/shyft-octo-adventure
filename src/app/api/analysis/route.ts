@@ -9,13 +9,14 @@ Always end every response with exactly this footer line:
 "Educational analysis, not investment advice. You make the decisions."`
 
 export async function POST(req: NextRequest) {
+  const authToken = process.env.ANTHROPIC_AUTH_TOKEN
   const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not set in .env.local' }, { status: 500 })
+  if (!authToken && !apiKey) {
+    return NextResponse.json({ error: 'Neither ANTHROPIC_AUTH_TOKEN nor ANTHROPIC_API_KEY is set' }, { status: 500 })
   }
 
   try {
-    const client = new Anthropic({ apiKey })
+    const client = authToken ? new Anthropic({ authToken }) : new Anthropic({ apiKey })
     const body = await req.json()
     const { ticker, shares, avgCost, currentPrice, gainLossPct, portfolioPct } = body
 

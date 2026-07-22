@@ -1,5 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { Agent, AgentResult } from './types'
+import type { Agent, AgentAuth, AgentResult } from './types'
+import { makeClient } from './types'
 
 const MODEL = 'claude-sonnet-5'
 
@@ -24,14 +24,14 @@ export const scribe: Agent = {
     },
   ],
 
-  async run(params, apiKey): Promise<AgentResult> {
-    const client = new Anthropic({ apiKey })
+  async run(params, auth: AgentAuth): Promise<AgentResult> {
+    const client = makeClient(auth)
     const text = params.text
     const mode = params.mode || 'auto'
 
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 1000,
+      max_tokens: 4000,
       system:
         'You are a precise executive assistant. Extract and structure information from text with high fidelity — never invent details not present in the source.',
       messages: [
@@ -59,7 +59,8 @@ ${text}`,
       ],
     })
 
-    const rawText = message.content[0].type === 'text' ? message.content[0].text : '{}'
+    const textBlock = message.content.find((b) => b.type === 'text')
+    const rawText = textBlock && textBlock.type === 'text' ? textBlock.text : '{}'
     const match = rawText.match(/\{[\s\S]*\}/)
     const output = match ? JSON.parse(match[0]) : { error: 'Parse failed', raw: rawText }
 

@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAgent } from '@/lib/agents/registry'
+import type { AgentAuth } from '@/lib/agents/types'
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
+  const auth: AgentAuth = {
+    authToken: process.env.ANTHROPIC_AUTH_TOKEN,
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  }
+
+  if (!auth.authToken && !auth.apiKey) {
     return NextResponse.json(
-      { error: 'ANTHROPIC_API_KEY is not set' },
+      { error: 'Neither ANTHROPIC_AUTH_TOKEN nor ANTHROPIC_API_KEY is set' },
       { status: 500 }
     )
   }
@@ -31,7 +36,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Validate required params
   const missing = agent.params
     .filter((p) => p.required && !params[p.name])
     .map((p) => p.name)
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const startMs = Date.now()
-    const result = await agent.run(params, apiKey)
+    const result = await agent.run(params, auth)
     const durationMs = Date.now() - startMs
 
     return NextResponse.json({
