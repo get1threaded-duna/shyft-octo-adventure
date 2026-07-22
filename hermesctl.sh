@@ -749,6 +749,108 @@ cmd_logs() {
     2>/dev/null || { err "No log files found yet — have you run 'start'?"; exit 1; }
 }
 
+# ── subcommand: agents ────────────────────────────────────────────────────────
+cmd_agents() {
+  _load_env
+  local subcmd="${1:-list}"
+  local gw_port="${HERMES_GATEWAY_PORT:-3000}"
+  local base_url="http://localhost:$gw_port"
+
+  case "$subcmd" in
+    list)
+      echo
+      echo "$(_bold 'hermesctl agents list')"
+      echo
+      local result; result="$(curl -sf "$base_url/api/agents" 2>/dev/null)" || {
+        err "Gateway not responding at $base_url — run: ./hermesctl.sh start"
+        exit 1
+      }
+      # Print each agent's name + description
+      echo "$result" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+agents = data.get('agents', [])
+print(f'  {len(agents)} agent(s) available:\n')
+for a in agents:
+    print(f'  \033[1m{a[\"name\"]}\033[0m')
+    print(f'    {a[\"description\"]}')
+    req = [p for p in a.get('params', []) if p['required']]
+    opt = [p for p in a.get('params', []) if not p['required']]
+    if req:
+        print(f'    Required: {', '.join(p[\"name\"] for p in req)}')
+    if opt:
+        print(f'    Optional: {', '.join(p[\"name\"] for p in opt)}')
+    print()
+"
+      ;;
+
+    run)
+      local agent_name="${2:-}"
+      if [[ -z "$agent_name" ]]; then
+        err "Usage: ./hermesctl.sh agents run <agent> [key=value ...]"
+        echo "       Example: ./hermesctl.sh agents run researcher topic='AI in healthcare'"
+        exit 1
+      fi
+      shift 2
+
+      # Build params JSON from key=value arguments
+      local params_json
+      params_json="$(python3 -c "
+import sys, json
+args = sys.argv[1:]
+d = {}
+for a in args:
+    if '=' in a:
+        k, v = a.split('=', 1)
+        d[k.strip()] = v.strip()
+print(json.dumps(d))
+" "$@")"
+
+      echo
+      echo "$(_bold "hermesctl agents run $agent_name")"
+      echo
+
+      local payload; payload="$(python3 -c "
+import json, sys
+print(json.dumps({'agent': sys.argv[1], 'params': json.loads(sys.argv[2])}))
+" "$agent_name" "$params_json")"
+
+      local result; result="$(curl -sf -X POST \
+        -H 'Content-Type: application/json' \
+        -d "$payload" \
+        "$base_url/api/agents/run" 2>/dev/null)" || {
+        err "Gateway not responding at $base_url — run: ./hermesctl.sh start"
+        exit 1
+      }
+
+      # Pretty-print the output field if present, else full result
+      echo "$result" | python3 -c "
+import sys, json
+
+data = json.load(sys.stdin)
+if 'error' in data:
+    print(f'  \033[31m✗\033[0m {data[\"error\"]}')
+    sys.exit(1)
+
+agent   = data.get('agent', '')
+dur     = data.get('durationMs', 0)
+meta    = data.get('meta', {})
+output  = data.get('output', {})
+
+print(f'  \033[36m→\033[0m Agent: {agent}  |  {dur}ms  |  {meta.get(\"input_tokens\",0)}→{meta.get(\"output_tokens\",0)} tokens\n')
+print(json.dumps(output, indent=2))
+"
+      ;;
+
+    *)
+      err "Unknown agents subcommand: $subcmd"
+      echo "  ./hermesctl.sh agents list"
+      echo "  ./hermesctl.sh agents run <agent> [key=value ...]"
+      exit 1
+      ;;
+  esac
+}
+
 # ── dispatch ───────────────────────────────────────────────────────────────────
 CMD="${1:-help}"
 
@@ -759,17 +861,31 @@ case "$CMD" in
   status) cmd_status;;
   doctor) _load_env; cmd_doctor;;
   logs)   cmd_logs;;
+  agents) cmd_agents "${@:2}";;
   help|--help|-h)
     echo
     echo "$(_bold 'hermesctl') — Juggernaut gateway/tunnel/bridge manager"
     echo
     echo "  $(_bold 'Commands:')"
-    echo "    init      Write ~/.hermes/hermesctl.env with defaults"
-    echo "    start     Boot gateway → tunnel → bridge (with health checks)"
-    echo "    stop      Gracefully stop all managed processes"
-    echo "    status    Show running state and URLs"
-    echo "    doctor    Validate environment, deps, and port availability"
-    echo "    logs      Tail live logs from all three services"
+    echo "    init                          Write ~/.hermes/hermesctl.env with defaults"
+    echo "    start                         Boot gateway → tunnel → bridge"
+    echo "    stop                          Gracefully stop all managed processes"
+    echo "    status                        Show running state and URLs"
+    echo "    doctor                        Validate environment, deps, and ports"
+    echo "    logs                          Tail live logs from all three services"
+    echo "    agents list                   List available AI agents"
+    echo "    agents run <agent> [k=v ...]  Run an agent with params"
+    echo
+    echo "  $(_bold 'Agents:')"
+    echo "    researcher   Research any topic, company, or market"
+    echo "    scribe       Extract structure from meetings, emails, documents"
+    echo "    planner      Turn a business goal into an actionable plan"
+    echo "    drafter      Draft emails, proposals, updates, and announcements"
+    echo
+    echo "  $(_bold 'Examples:')"
+    echo "    ./hermesctl.sh agents run researcher topic='AI in healthcare' depth=detailed"
+    echo "    ./hermesctl.sh agents run planner goal='Launch B2B SaaS in 90 days' horizon=90d"
+    echo "    ./hermesctl.sh agents run drafter type=email intent='Follow up on proposal'"
     echo
     echo "  $(_bold 'Env file:') $ENV_FILE"
     echo "  $(_bold 'Logs:')     $LOG_DIR/"
